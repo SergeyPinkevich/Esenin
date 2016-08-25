@@ -22,7 +22,7 @@ class Poem:
 
 
 def create_db():
-    con = sqlite3.connect('texts.db')
+    con = sqlite3.connect('texts.db', timeout=10)
     cur = con.cursor()
     cur.execute('CREATE TABLE texts (id INTEGER PRIMARY KEY, title VARCHAR(200), text TEXT, year INTEGER)')
     con.commit()
@@ -30,7 +30,7 @@ def create_db():
 
 
 def update_db(poem):
-    con = sqlite3.connect('texts.db')
+    con = sqlite3.connect('texts.db', timeout=10)
     cur = con.cursor()
     cur.execute('INSERT INTO texts(title, text, year) VALUES (?, ?, ?)', (poem.title, poem.text, poem.year))
     con.commit()
@@ -55,11 +55,17 @@ def parse_page(html):
     block = soup.find("div", class_="list_columns2")
 
     title = block.find("h3").text
-    text = block.find("pre")
-    text = re.findall(r'<pre>(.*?)<i>', str(text), re.DOTALL)[0].strip()
+    temp = block.find("pre")
+    try:
+        text = re.findall(r'<pre>(.*?)<i>', str(temp), re.DOTALL)[0].strip()
+        if text == "":
+            text = re.findall(r'</i>(.*?)<i>', str(temp), re.DOTALL)[0].strip()
+        year = block.find_all("i")
+        year = int(re.findall(r'(\d{4})', str(year))[0])
+    except IndexError:
+        text = re.findall(r'</i>(.*?)<i>', str(temp), re.DOTALL)[0].strip()
     if title == "x x x":
         title = re.split('\n', text)[0]
-    year = block.find("i").text
 
     print(title)
     # print(text)
@@ -80,7 +86,9 @@ def create_poem(title, text, year):
 
 if __name__ == '__main__':
     # create_db()
-    # for i in range(0, 6):
-    #     parse(get_html(url + "/esenin/div" + str(i)))
-    parse_page(get_html(url + "/esenin/ah_metel_takaia/"))
-    parse_page(get_html(url + "/esenin/vhate/"))
+    for i in range(0, 6):
+        parse(get_html(url + "/esenin/div" + str(i)))
+    # parse_page(get_html(url + "/esenin/vhate/"))
+    # print()
+    # parse_page(get_html(url + "/esenin/ahkakmnogo/"))
+
