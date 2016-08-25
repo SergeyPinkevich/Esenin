@@ -57,19 +57,21 @@ def parse_page(html):
     title = block.find("h3").text
     temp = block.find("pre")
     try:
+        year = block.find_all("i")
+        year = int(re.findall(r'(\d{4})', str(year))[0])
         text = re.findall(r'<pre>(.*?)<i>', str(temp), re.DOTALL)[0].strip()
         if text == "":
             text = re.findall(r'</i>(.*?)<i>', str(temp), re.DOTALL)[0].strip()
-        year = block.find_all("i")
-        year = int(re.findall(r'(\d{4})', str(year))[0])
     except IndexError:
-        text = re.findall(r'</i>(.*?)<i>', str(temp), re.DOTALL)[0].strip()
+        text = re.findall(r'<pre>(.*?)</pre>', str(temp), re.DOTALL)[0].strip()
     if title == "x x x":
         title = re.split('\n', text)[0]
+    if isinstance(year, list) and len(year) is 0:
+        year = 0
 
     print(title)
-    # print(text)
-    # print(year)
+    print(text)
+    print(year)
 
     create_poem(title, text, year)
 
@@ -85,10 +87,8 @@ def create_poem(title, text, year):
 
 
 if __name__ == '__main__':
-    # create_db()
+    create_db()
     for i in range(0, 6):
         parse(get_html(url + "/esenin/div" + str(i)))
-    # parse_page(get_html(url + "/esenin/vhate/"))
-    # print()
-    # parse_page(get_html(url + "/esenin/ahkakmnogo/"))
+    # parse_page(get_html(url + "/esenin/orusvzmahni/"))
 
