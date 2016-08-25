@@ -70,7 +70,7 @@ def parse_page(html):
         year = 0
 
     print(title)
-    print(text)
+    # print(text)
     print(year)
 
     create_poem(title, text, year)
